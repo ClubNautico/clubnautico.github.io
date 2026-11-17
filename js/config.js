@@ -56,11 +56,7 @@ window.HUB_CONFIG = {
         { titulo: "Tests de agua",
           descripcion: "Toma de tests con cronómetro.",
           icono: "gota",
-          url: "https://clubnautico.github.io/tests-agua/" },
-        { titulo: "Jueces Nautitlón",
-          descripcion: "Tiempos y pases de la competencia.",
-          icono: "bandera",
-          url: "https://clubnautico.github.io/jueces-nautitlon/" }
+          url: "https://clubnautico.github.io/tests-agua/" }
       ]
     }
   ]
