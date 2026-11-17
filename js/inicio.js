@@ -179,6 +179,26 @@
   var previo = {};
   function revisa() {
     if (document.hidden) return;
+    /* Primero se pregunta al servidor de la portada (mismo origen, sin CORS ni
+       bloqueo de red local); si no responde, se prueba directo a cada puerto. */
+    var ctlE = ('AbortController' in window) ? new AbortController() : null;
+    var tE = setTimeout(function () { if (ctlE) ctlE.abort(); }, 2500);
+    var pe;
+    try { pe = fetch('/estado.json', { cache: 'no-store', signal: ctlE ? ctlE.signal : undefined }); }
+    catch (e) { pe = Promise.reject(e); }
+    pe.then(function (r) { if (!r.ok) throw new Error('estado'); return r.json(); })
+      .then(function (d) {
+        clearTimeout(tE);
+        if (!d || typeof d !== 'object') throw new Error('estado');
+        locales.forEach(function (l) {
+          var clave = d[String(l.puerto)] ? 'abierta' : 'cerrada';
+          if (previo[l.puerto] !== clave) { previo[l.puerto] = clave; estado(l.el, clave); }
+        });
+      })
+      .catch(function () { clearTimeout(tE); revisaDirecto(); });
+  }
+
+  function revisaDirecto() {
     locales.forEach(function (l) {
       var ctl = ('AbortController' in window) ? new AbortController() : null;
       var rechaza = null;
