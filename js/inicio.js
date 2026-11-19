@@ -30,6 +30,7 @@
   var secPiscina = null, piscinaTimer = null;
   var locales = []; // {puerto, el}  (solo en modo local)
   var tarjetasLocales = []; // {a, est, puerto, clic}
+  var tarjetasUrl = []; // {a, href, ruta}: paginas de internet que dentro de la puerta se abren por la puerta (p. ej. el portal)
 
   function mostrarError(txt) { err.hidden = false; err.textContent = txt; }
 
@@ -140,7 +141,10 @@
     li.appendChild(a);
     if (!esLocal) {
       var h = hrefSeguro(p.url);
-      if (h) { a.href = h; }
+      if (h) {
+        a.href = h;
+        if (typeof p.puerta === 'string' && p.puerta.replace(/\//g, '')) tarjetasUrl.push({ a: a, href: h, ruta: p.puerta });
+      }
       else {
         a.setAttribute('aria-disabled', 'true');
         var mal = document.createElement('div');
@@ -159,9 +163,14 @@
     return li;
   }
 
+  /* Dentro de la puerta, las tarjetas con "puerta" van a /<carpeta>/ (mismo sitio, ya con ingreso); fuera, a su url. */
+  function pintaUrlPuerta() {
+    tarjetasUrl.forEach(function (r) { r.a.href = modoPuerta ? '/' + String(r.ruta).replace(/^\/+/, '') : r.href; });
+  }
+
   function construye() {
     cont.innerHTML = '';
-    locales = []; tarjetasLocales = [];
+    locales = []; tarjetasLocales = []; tarjetasUrl = [];
     cfg.secciones.forEach(function (s, i) {
       try {
         if (!s || !Array.isArray(s.paginas)) return;
@@ -222,7 +231,7 @@
 
   var vigilando = false;
   function pasaALocal(viaPuerta) {
-    if (viaPuerta) { modoPuerta = true; ponSalir(); }
+    if (viaPuerta) { modoPuerta = true; ponSalir(); pintaUrlPuerta(); }
     if (modoLocal) return;
     modoLocal = true;
     if (secPiscina) secPiscina.hidden = true;     // ya se esta en la PC de la piscina o dentro de la puerta
@@ -300,7 +309,7 @@
   construye(); // de inmediato, en modo internet
   /* Dentro de la puerta: sin puerto en la direccion y host de trycloudflare. */
   var viaPuertaPorHost = !location.port && /\.trycloudflare\.com$/i.test(location.hostname);
-  if (viaPuertaPorHost) { modoPuerta = true; ponSalir(); }
+  if (viaPuertaPorHost) { modoPuerta = true; ponSalir(); pintaUrlPuerta(); }
   construyePiscina();
   try {
     fetch('local.json', { cache: 'no-store' })

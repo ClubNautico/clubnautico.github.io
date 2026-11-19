@@ -25,7 +25,7 @@ window.HUB_CONFIG = {
      descripcion : una línea corta
      icono       : trofeo | perfil | asistencia | cronometro | gota | bandera
      url         : dirección completa (páginas de internet)
-     puerta      : carpeta con la que se abre desde internet a traves de la puerta (solo tarjetas con local)
+     puerta      : carpeta con la que se abre dentro de la puerta (tarjetas con local, o con url como el Portal)
      local       : puerto (número) si la página vive en la computadora de la piscina
                    (en ese caso no se pone url)
      Para ocultar una tarjeta, borra todo su bloque { ... }, con su coma. */
@@ -40,7 +40,8 @@ window.HUB_CONFIG = {
         { titulo: "Portal del nadador",
           descripcion: "Cada nadador ve su información. Se entra con su usuario.",
           icono: "perfil",
-          url: "https://clubnautico.github.io/portal-nadador/" }
+          url: "https://clubnautico.github.io/portal-nadador/",
+          puerta: "portal/" }
       ]
     },
     {
