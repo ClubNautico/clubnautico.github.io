@@ -25,6 +25,7 @@ window.HUB_CONFIG = {
      descripcion : una línea corta
      icono       : trofeo | perfil | asistencia | cronometro | gota | bandera
      url         : dirección completa (páginas de internet)
+     puerta      : carpeta con la que se abre desde internet a traves de la puerta (solo tarjetas con local)
      local       : puerto (número) si la página vive en la computadora de la piscina
                    (en ese caso no se pone url)
      Para ocultar una tarjeta, borra todo su bloque { ... }, con su coma. */
@@ -48,11 +49,13 @@ window.HUB_CONFIG = {
         { titulo: "Asistencias",
           descripcion: "Asistencia, atrasos y notas del día.",
           icono: "asistencia",
-          local: 8772 },
+          local: 8772,
+          puerta: "asistencias/" },
         { titulo: "Entrenamientos",
           descripcion: "Series y tiempos por carril.",
           icono: "cronometro",
-          local: 8765 },
+          local: 8765,
+          puerta: "entrenamientos/" },
         { titulo: "Tests de agua",
           descripcion: "Toma de tests con cronómetro.",
           icono: "gota",

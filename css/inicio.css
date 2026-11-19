@@ -22,6 +22,7 @@ a{color:inherit}
   border:1px solid var(--border-strong);background:var(--surface-1);color:var(--text);font:inherit;font-size:1rem;font-weight:500;cursor:pointer;
   transition:background var(--dur-fast),border-color var(--dur-fast)}
 .tema:hover{background:var(--surface-2)}
+a.tema{text-decoration:none}
 .tema svg{width:22px;height:22px}
 .tema .sol{display:none}
 [data-theme="dark"] .tema .luna{display:none}

@@ -9,6 +9,7 @@
     asistencia: '<path d="M4.5 6.8l1.7 1.7L9 5.5"/><path d="M12.5 7h7"/><path d="M4.5 12.8l1.7 1.7L9 11.5"/><path d="M12.5 13h7"/><path d="M5 19h4"/><path d="M12.5 19h7"/>',
     cronometro: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9"/><path d="M9.5 2.5h5M12 2.5V6"/><path d="M18.6 6l1.4 1.4"/>',
     gota: '<path d="M12 2.8c3.2 4 5.8 6.8 5.8 10a5.8 5.8 0 0 1-11.6 0c0-3.2 2.6-6 5.8-10z"/><path d="M12 11v2.8l1.8 1.2"/>',
+    wifi: '<path d="M2.8 9a14 14 0 0 1 18.4 0M5.8 12.4a9.6 9.6 0 0 1 12.4 0M8.8 15.7a5.2 5.2 0 0 1 6.4 0"/><path d="M12 19.2v.1"/>',
     bandera: '<path d="M6 21.5V3"/><path d="M6 4.5h12.5L15 9l3.5 4.5H6"/>'
   };
   var ICONO_GEN = '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 8.5h6M9 12h6M9 15.5h3"/>';
@@ -25,6 +26,8 @@
   var err = document.getElementById('error');
   var ayuda = document.getElementById('ayuda');
   var modoLocal = false;
+  var modoPuerta = false; // abierta desde internet a traves de la puerta (puerta/puerta.py)
+  var secPiscina = null, piscinaTimer = null;
   var locales = []; // {puerto, el}  (solo en modo local)
   var tarjetasLocales = []; // {a, est, puerto, clic}
 
@@ -118,7 +121,8 @@
   function modoLocalTarjeta(r) {
     if (r.clic) { r.a.removeEventListener('click', r.clic); r.clic = null; }
     r.a.removeAttribute('role');
-    r.a.href = location.protocol + '//' + location.hostname + ':' + r.puerto + '/';
+    if (modoPuerta && r.ruta) r.a.href = '/' + String(r.ruta).replace(/^\/+/, '');   // /entrenamientos/ o /asistencias/
+    else r.a.href = location.protocol + '//' + location.hostname + ':' + r.puerto + '/';
     estado(r.est, 'revisando');
     r.est.setAttribute('role', 'status');
     locales.push({ puerto: r.puerto, el: r.est });
@@ -149,7 +153,7 @@
 
     var est = document.createElement('div');
     a.querySelector('.cuerpo').appendChild(est);
-    var r = { a: a, est: est, puerto: p.local, clic: null };
+    var r = { a: a, est: est, puerto: p.local, ruta: (typeof p.puerta === 'string' ? p.puerta : ''), clic: null };
     if (modoLocal) modoLocalTarjeta(r); else modoInternet(r);
     tarjetasLocales.push(r);
     return li;
@@ -195,7 +199,7 @@
           if (previo[l.puerto] !== clave) { previo[l.puerto] = clave; estado(l.el, clave); }
         });
       })
-      .catch(function () { clearTimeout(tE); revisaDirecto(); });
+      .catch(function () { clearTimeout(tE); if (!modoPuerta) revisaDirecto(); });
   }
 
   function revisaDirecto() {
@@ -217,9 +221,11 @@
   }
 
   var vigilando = false;
-  function pasaALocal() {
+  function pasaALocal(viaPuerta) {
+    if (viaPuerta) { modoPuerta = true; ponSalir(); }
     if (modoLocal) return;
     modoLocal = true;
+    if (secPiscina) secPiscina.hidden = true;     // ya se esta en la PC de la piscina o dentro de la puerta
     tarjetasLocales.forEach(modoLocalTarjeta);
     if (!vigilando) {
       vigilando = true;
@@ -229,16 +235,77 @@
     revisa();
   }
 
+  /* ---- Boton Salir (solo dentro de la puerta) ---- */
+  function ponSalir() {
+    if (document.getElementById('salir')) return;
+    var a = document.createElement('a');
+    a.id = 'salir'; a.className = 'tema'; a.href = '/salir'; a.textContent = 'Salir';
+    btn.parentNode.insertBefore(a, btn);
+    btn.parentNode.style.flexWrap = 'wrap';
+  }
+
+  /* ---- "Paginas de la piscina (desde cualquier wifi)": lee piscina.json ---- */
+  function construyePiscina() {
+    if (modoPuerta) return;
+    var sec = document.createElement('section');
+    sec.className = 'seccion'; sec.hidden = true; sec.setAttribute('aria-labelledby', 'sec-piscina-t');
+    var h = document.createElement('h2'); h.id = 'sec-piscina-t'; h.textContent = 'Desde cualquier wifi';
+    var ul = document.createElement('ul'); ul.className = 'rejilla';
+    var li = document.createElement('li');
+    var a = document.createElement('a'); a.className = 'tarjeta';
+    a.innerHTML = '<span class="ficha">' + svg(ICONOS.wifi) + '</span><span class="cuerpo"><h3>Páginas de la piscina (desde cualquier wifi)</h3><p>Asistencias y Entrenamientos. Se entra con usuario y contraseña.</p></span>' + FLECHA;
+    var est = document.createElement('div'); est.setAttribute('role', 'status');
+    a.querySelector('.cuerpo').appendChild(est);
+    li.appendChild(a); ul.appendChild(li); sec.appendChild(h); sec.appendChild(ul);
+    cont.insertBefore(sec, cont.firstChild);
+    secPiscina = sec;
+
+    function apagada() {
+      a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true');
+      est.className = 'estado cerrada'; est.innerHTML = svg(EST.cerrada[0]) + '<span></span>';
+      est.lastChild.textContent = 'La PC de la piscina está apagada';
+    }
+    function abierta(href) {
+      a.href = href; a.removeAttribute('aria-disabled');
+      estado(est, 'abierta'); est.lastChild.textContent = 'Abierta: toca para entrar';
+    }
+    function revisa1(d) {
+      var href = hrefSeguro(d && d.url);
+      if (!href) { apagada(); return; }
+      var base = href.replace(/\/+$/, '');
+      var ctl = ('AbortController' in window) ? new AbortController() : null;
+      var t = setTimeout(function () { if (ctl) ctl.abort(); }, 5000);
+      fetch(base + '/ping', { cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+        .then(function (r) { if (!r.ok) throw new Error('ping'); return r.json(); })
+        .then(function (j) { clearTimeout(t); if (j && j.club === true) abierta(base + '/'); else apagada(); })
+        .catch(function () { clearTimeout(t); apagada(); });
+    }
+    function lee() {
+      if (modoLocal) return;
+      fetch('piscina.json?_=' + Date.now(), { cache: 'no-store' })
+        .then(function (r) { if (!r.ok) throw new Error('piscina'); return r.json(); })
+        .then(function (d) { if (modoLocal) return; sec.hidden = false; sec.dataset.vista = '1'; revisa1(d); })
+        .catch(function () { /* sin piscina.json (por ejemplo, copia local vieja): no se muestra la tarjeta */ });
+    }
+    estado(est, 'revisando');
+    lee();
+    piscinaTimer = setInterval(function () { if (!document.hidden && !modoLocal) lee(); }, 20000);
+  }
+
   /* ---- Inicio ---- */
   if (!cfg || !Array.isArray(cfg.secciones)) {
     mostrarError('No se pudo leer la lista de páginas (archivo js/config.js). Avisa a quien administra la página.');
     return;
   }
   construye(); // de inmediato, en modo internet
+  /* Dentro de la puerta: sin puerto en la direccion y host de trycloudflare. */
+  var viaPuertaPorHost = !location.port && /\.trycloudflare\.com$/i.test(location.hostname);
+  if (viaPuertaPorHost) { modoPuerta = true; ponSalir(); }
+  construyePiscina();
   try {
     fetch('local.json', { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (j) { if (j && j.local === true) pasaALocal(); })
+      .then(function (j) { if (j && j.local === true) pasaALocal(j.puerta === true || viaPuertaPorHost); })
       .catch(function () {});
   } catch (e) {}
 })();
