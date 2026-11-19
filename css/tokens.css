@@ -1,36 +1,28 @@
-/* Tokens "Carril nocturno" (misma familia que Portal del nadador y Asistencias).
-   Aquí el tema CLARO es el predeterminado; el oscuro se activa con data-theme="dark". */
+/* Tokens "Carril nocturno" (DISEÑO CLUB.md). Oscuro por defecto; el claro se activa con data-theme="light". */
 :root {
-  color-scheme: light;
-  --bg:#F3F6FC; --surface-1:#FFFFFF; --surface-2:#EAF0FA; --surface-3:#DCE5F4;
-  --overlay:rgba(10,18,36,.45);
-  --border:#D5DFEF; --border-strong:#AFBDD6;
-  --text:#0A1224; --text-2:#44516D; --text-3:#52607D; --text-on-accent:#FFFFFF;
-  --accent:#1D55E8; --accent-hover:#2A62F0; --accent-text:#1A4FD6;
-  --accent-soft:#E3ECFF; --accent-line:rgba(29,85,232,.40);
-  --focus-ring:0 0 0 3px var(--bg), 0 0 0 6px #1D55E8;
-  --ok:#0A7245; --ok-soft:rgba(10,114,69,.10);
-  --warn:#8A5200; --warn-soft:rgba(138,82,0,.10);
-  --shadow-float:0 12px 28px -8px rgba(10,24,60,.22), 0 2px 6px rgba(10,24,60,.10);
-  --font-display:"Geist", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-text:"Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-pill:999px;
-  --dur-fast:120ms; --dur-base:220ms; --dur-slow:420ms;
-  --ease-out:cubic-bezier(.22,1,.36,1);
-  --gutter:16px; --max-w:1040px;
-}
-[data-theme="dark"] {
   color-scheme: dark;
-  --bg:#060A12; --surface-1:#0B1220; --surface-2:#111B30; --surface-3:#18253F;
-  --overlay:rgba(3,6,12,.72);
-  --border:#1A2742; --border-strong:#2B3D63;
-  --text:#F2F5FB; --text-2:#B4BFD6; --text-3:#8696B5;
-  --accent:#2F6BFF; --accent-hover:#4A7FFF; --accent-text:#7FAEFF;
-  --accent-soft:#102448; --accent-line:rgba(91,147,255,.45);
-  --focus-ring:0 0 0 3px var(--bg), 0 0 0 6px #5B93FF;
-  --ok:#3DDC97; --ok-soft:rgba(61,220,151,.12);
-  --warn:#FFB454; --warn-soft:rgba(255,180,84,.12);
-  --shadow-float:0 12px 32px -8px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.4);
+  --fondo:#060A12; --superficie:#0B1220; --superficie-2:#111B30; --superficie-3:#18253F;
+  --borde:#1F2E4D; --borde-fuerte:#5A6F99;
+  --texto:#F2F5FB; --texto-suave:#C3CDE2; --texto-tenue:#9AA9C6;
+  --acento:#2F6BFF; --acento-fuerte:#4A7FFF; --acento-texto:#7BA6FF; --acento-suave:#102448; --acento-linea:rgba(91,147,255,.55);
+  --sobre-acento:#FFFFFF;
+  --ok:#4BE3A3; --ok-suave:rgba(61,220,151,.14);
+  --aviso:#FFC272; --aviso-suave:rgba(255,180,84,.14);
+  --error:#FF9494; --error-suave:rgba(255,122,122,.14);
+  --anillo:#7BA6FF;
+  --sombra:0 12px 32px -8px rgba(0,0,0,.6);
+  --f-tit:"Geist", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --f-txt:"Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
-@media (min-width:768px)  { :root { --gutter:24px; } }
-@media (min-width:1280px) { :root { --gutter:40px; } }
+[data-theme="light"] {
+  color-scheme: light;
+  --fondo:#F3F6FC; --superficie:#FFFFFF; --superficie-2:#EAF0FA; --superficie-3:#DCE5F4;
+  --borde:#D5DFEF; --borde-fuerte:#8C9BB8;
+  --texto:#0A1224; --texto-suave:#33415C; --texto-tenue:#4A5876;
+  --acento:#1D55E8; --acento-fuerte:#2A62F0; --acento-texto:#1A4FD6; --acento-suave:#E3ECFF; --acento-linea:rgba(29,85,232,.45);
+  --ok:#0A6B42; --ok-suave:#E1F4EA;
+  --aviso:#7A4700; --aviso-suave:#FFF1D6;
+  --error:#B01E1E; --error-suave:#FDE7E7;
+  --anillo:#1D55E8;
+  --sombra:0 12px 28px -8px rgba(10,24,60,.22);
+}
